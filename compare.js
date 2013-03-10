@@ -1,88 +1,100 @@
-var compare = (function() {
+(function(window, undefined) {
 
-	var fillArrayWithDefaultValues = function(length, defaultValue) {
-		var array = [];
-		for(var i = 0; i < length; i++){
-			array.push(defaultValue);
-		}
-		return array;
-	};
+	'use strict'; 
 
-	var getList = function(objectsToCompare, defaultValue) {
-		var compareList  = {};
+	var compare = (function() {
 
-		for (var i in objectsToCompare) {
-			var obj = objectsToCompare[i];
+		var fillArrayWithDefaultValues = function(length, defaultValue) {
+			var array = [];
+			for(var i = 0; i < length; i++){
+				array.push(defaultValue);
+			}
+			return array;
+		};
 
-			// Add properties to list
-			for(var propertyName in obj) {
-				if(typeof(obj[propertyName]) !== 'object') {
-					// create new property if it doesn't exist
-					if(!compareList[propertyName]) {
-						compareList[propertyName] = fillArrayWithDefaultValues(objectsToCompare.length, defaultValue);//new Array(objectsToCompare.length);
-					}
-					compareList[propertyName][i] = obj[propertyName];
-				} else {
-					// Handle properties of type 'object' here
+		var getList = function(objectsToCompare, defaultValue) {
+			var compareList  = {};
 
-					// create new property if it doesn't exist
-					if(!compareList[propertyName]) {
-						compareList[propertyName] = {};
-					}
+			for (var i in objectsToCompare) {
+				var obj = objectsToCompare[i];
 
-					for(var attributeName in obj[propertyName]) {
-						// create new attribute if it doesn't exist
-						if(!compareList[propertyName][attributeName]) {
-							compareList[propertyName][attributeName] = fillArrayWithDefaultValues(objectsToCompare.length, defaultValue);//new Array(objectsToCompare.length);
+				// Add properties to list
+				for(var propertyName in obj) {
+					if(typeof(obj[propertyName]) !== 'object') {
+						// create new property if it doesn't exist
+						if(!compareList[propertyName]) {
+							compareList[propertyName] = fillArrayWithDefaultValues(objectsToCompare.length, defaultValue);//new Array(objectsToCompare.length);
 						}
-						compareList[propertyName][attributeName][i] = obj[propertyName][attributeName];
+						compareList[propertyName][i] = obj[propertyName];
+					} else {
+						// Handle properties of type 'object' here
+
+						// create new property if it doesn't exist
+						if(!compareList[propertyName]) {
+							compareList[propertyName] = {};
+						}
+
+						for(var attributeName in obj[propertyName]) {
+							// create new attribute if it doesn't exist
+							if(!compareList[propertyName][attributeName]) {
+								compareList[propertyName][attributeName] = fillArrayWithDefaultValues(objectsToCompare.length, defaultValue);//new Array(objectsToCompare.length);
+							}
+							compareList[propertyName][attributeName][i] = obj[propertyName][attributeName];
+						}
 					}
 				}
 			}
-		}
 
-		return compareList;
-	};
+			return compareList;
+		};
 
-	var getListGroupBy = function(objectsToCompare, groupBy, defaultValue) {
-		var groupedCompareList  = [];
-		var groups = [];
+		var getListGroupBy = function(objectsToCompare, groupBy, defaultValue) {
+			var groupedCompareList  = [];
+			var groups = [];
 
-		for (var i in objectsToCompare) {
-			var obj = objectsToCompare[i];
+			for (var i in objectsToCompare) {
+				var obj = objectsToCompare[i];
 
-			var groupWasFound = false;
-			for(var x in groups) {
-				// Insert into existing group
-				if(groups[x].groupName === obj[groupBy])
-				{
-					groups[x].objects.push(obj);
-					groupWasFound = true;
-					break;
+				var groupWasFound = false;
+				for(var x in groups) {
+					// Insert into existing group
+					if(groups[x].groupName === obj[groupBy])
+					{
+						groups[x].objects.push(obj);
+						groupWasFound = true;
+						break;
+					}
+				}
+
+				// Insert into new group
+				if(!groupWasFound) {
+					var newGroup = {
+						groupName: obj[groupBy],
+						objects: [obj]
+					};
+					groups.push(newGroup);
 				}
 			}
 
-			// Insert into new group
-			if(!groupWasFound) {
-				var newGroup = {
-					groupName: obj[groupBy],
-					objects: [obj]
-				};
-				groups.push(newGroup);
+			// Generate grouped compare list
+			for(var y in groups) {
+				groupedCompareList.push(getList(groups[y].objects, defaultValue));
 			}
-		}
 
-		// Generate grouped compare list
-		for(var y in groups) {
-			groupedCompareList.push(getList(groups[y].objects, defaultValue));
-		}
+			return groupedCompareList;
+		};
 
-		return groupedCompareList;
-	};
+		return {
+			getList: getList,
+			getListGroupBy: getListGroupBy
+		};
 
-	return {
-		getList: getList,
-		getListGroupBy: getListGroupBy
-	};
+	})();
 
-})();
+	window.compare = compare;
+
+	if (typeof define === "function" && define.amd) {
+		define( "compare", [], function () { return compare; } );
+	}
+
+})(window);
