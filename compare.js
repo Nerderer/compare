@@ -23,7 +23,7 @@
 					if(typeof(obj[propertyName]) !== 'object') {
 						// create new property if it doesn't exist
 						if(!compareList[propertyName]) {
-							compareList[propertyName] = fillArrayWithDefaultValues(objectsToCompare.length, defaultValue);//new Array(objectsToCompare.length);
+							compareList[propertyName] = fillArrayWithDefaultValues(objectsToCompare.length, defaultValue);
 						}
 						compareList[propertyName][i] = obj[propertyName];
 					} else {
@@ -37,7 +37,7 @@
 						for(var attributeName in obj[propertyName]) {
 							// create new attribute if it doesn't exist
 							if(!compareList[propertyName][attributeName]) {
-								compareList[propertyName][attributeName] = fillArrayWithDefaultValues(objectsToCompare.length, defaultValue);//new Array(objectsToCompare.length);
+								compareList[propertyName][attributeName] = fillArrayWithDefaultValues(objectsToCompare.length, defaultValue);
 							}
 							compareList[propertyName][attributeName][i] = obj[propertyName][attributeName];
 						}
